@@ -9,9 +9,9 @@ def precompute():
     """Run any kind of precomputation that is slow for real-time search.
     """
     try:
-        df = pd.read_csv(Path(DATA_PATH_LIVE) / 'owid/full.csv', parse_dates=[3])
-        to_cube(df)
-        logger.info("to_cube done")
+        df = pd.read_csv(Path(DATA_PATH_LIVE) / 'vtas/example_dnam_data.csv', index_col=0)
+        #to_cube(df)
+        logger.info("vtas done")
 
     except:
-        logger.error('Cube creation error check owid file')
+        logger.error('no correlation file')

@@ -1,6 +1,6 @@
 from os import lstat
 from pathlib import Path
-
+import pandas as pd
 from loguru import logger
 from fastapi import APIRouter
 from app.core.settings import DATA_PATH_LIVE
@@ -11,60 +11,32 @@ from pydantic import BaseModel
 from typing import List,Dict
 from datetime import date
 from app.algorithms.sim_search.predictfunctions import predictOutput
+from app.algorithms.vats.corr_mat_gen import cor_mat
 
 timeseries_sim_search_controller = APIRouter()
 
-class FirstRunForm(BaseModel):
-    targetCountry: str 
-    firstDate: date
-    lastDate: date
-    indicator: str
-    method: list
-    numberOfResults: int
-    minPopulation: int
-    startDate: date
-    endDate: date
-    continentCheck: Dict[str,bool]
+class HeatMapInputs(BaseModel):
+    method: str
 
-class BenchmarkCountries(BaseModel):
-    countries: list
-
-class TimeSeries(BaseModel):
-    series : list
-    query :  dict
+class ManhattanInputs(BaseModel):
+    dummy: int
 
 
-@timeseries_sim_search_controller.post("/search/")
-async def searchform(firstRunForm:FirstRunForm):
-    targetCountry = firstRunForm.targetCountry
-    firstDate = firstRunForm.firstDate
-    lastDate = firstRunForm.lastDate
-    indicator = firstRunForm.indicator
-    method = firstRunForm.method
-    numberOfResults = firstRunForm.numberOfResults
-    minPopulation = firstRunForm.minPopulation
-    startDate = firstRunForm.startDate
-    endDate = firstRunForm.endDate
-    continentCheck = firstRunForm.continentCheck
-    continentCheck = continentTransformer(continentCheck)
-    master = []
-    for i in method:
-        out = firstRunOutput(targetCountry,firstDate,lastDate,indicator,i,numberOfResults,minPopulation,startDate,endDate,continentCheck)
-        master.append({"method":i,"data":out})
-    return master
 
-@timeseries_sim_search_controller.post("/compare/")
-async def compareform(benchmarkCountries:BenchmarkCountries):
-    countries = benchmarkCountries.countries
-    out = compareOutput(countries)
-    return out
 
     
-@timeseries_sim_search_controller.post("/predict/")
-async def predictform(timeSeries:TimeSeries):
-    out = predictOutput(timeSeries)
-    return out
+@timeseries_sim_search_controller.post("/dnam_corr_generate/")
+async def heatmap_input(inputs:HeatMapInputs):
+    df = pd.read_csv(Path(DATA_PATH_LIVE) / 'vtas/example_dnam_data.csv', index_col=0)
+    method = inputs.method
+    ids,data = cor_mat(df,method)
+    output = {"id":ids,"data":data}
+    return output
 
-    
-       
+     
+@timeseries_sim_search_controller.post("/manhattan_generate/")
+async def manhattan_input(inputs:ManhattanInputs):
+    df = pd.read_csv(Path(DATA_PATH_LIVE) / 'vtas/example_manhattan_input.csv', index_col=0) 
+    return df.to_dict('records')
+
 

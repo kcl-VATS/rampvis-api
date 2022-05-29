@@ -8,10 +8,10 @@ def compareOutput(benchmarkCountries):
     for streams in streams_to_show:
         df_prot = pd.read_csv(PATH_SEARCH+"/{}.csv".format(streams))
         df_prot.set_index("date",inplace=True)
-
         obj = {}
         obj["key"] = streams
-        df_filt = df_prot.filter(items=benchmarkCountries).tail(120)
+        df_filt = df_prot.filter(items=benchmarkCountries)
+        df_filt = df_filt["2022-01-01":"2022-04-01"]
     
         for i in df_filt.columns:
             if df_filt[i].isnull().all() == True:
