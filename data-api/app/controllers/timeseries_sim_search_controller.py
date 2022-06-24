@@ -12,7 +12,7 @@ from typing import List,Dict
 from datetime import date
 from app.algorithms.sim_search.predictfunctions import predictOutput
 from app.algorithms.vats.corr_mat_gen import cor_mat
-
+import json
 timeseries_sim_search_controller = APIRouter()
 
 class HeatMapInputs(BaseModel):
@@ -20,6 +20,9 @@ class HeatMapInputs(BaseModel):
 
 class ManhattanInputs(BaseModel):
     dummy: int
+
+class SankeyInputs(BaseModel):
+    dummy: int 
 
 
 
@@ -39,4 +42,9 @@ async def manhattan_input(inputs:ManhattanInputs):
     df = pd.read_csv(Path(DATA_PATH_LIVE) / 'vtas/example_manhattan_input.csv', index_col=0) 
     return df.to_dict('records')
 
+@timeseries_sim_search_controller.post("/sankey_generate/")
+async def sankey_input(inputs:SankeyInputs):
+    with open(Path(DATA_PATH_LIVE)/'vtas/sankey.json') as json_file:
+        data = json.load(json_file)
+    return data
 

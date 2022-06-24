@@ -9,7 +9,7 @@ scipy
 PyJWT==1.7.1
 apscheduler
 fsspec
-data-pipeline-api
+data-pipeline-api==0.7.3
 elasticsearch
 pymongo
 dnspython
